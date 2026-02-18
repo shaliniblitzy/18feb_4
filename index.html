@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Simple Calculator</h1>
+        <button id="theme-toggle" type="button" aria-label="Toggle dark mode">🌙</button>
+    </header>
+
+    <main>
+        <section class="input-section">
+            <div class="input-group">
+                <label for="input1">Input 1:</label>
+                <input type="text" id="input1" placeholder="Enter first number" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="input2">Input 2:</label>
+                <input type="text" id="input2" placeholder="Enter second number" autocomplete="off">
+            </div>
+        </section>
+
+        <section class="operations-section">
+            <button type="button" class="op-btn" data-op="add">+</button>
+            <button type="button" class="op-btn" data-op="subtract">−</button>
+            <button type="button" class="op-btn" data-op="multiply">×</button>
+            <button type="button" class="op-btn" data-op="divide">÷</button>
+        </section>
+
+        <section class="result-section">
+            <div id="result"></div>
+        </section>
+
+        <section class="clear-section">
+            <button type="button" id="clear-btn">Clear</button>
+        </section>
+    </main>
+
+    <aside>
+        <h2>Calculation History</h2>
+        <ul id="history-list"></ul>
+    </aside>
+
+    <script src="js/calculator.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
