@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Tests</title>
+    <style>
+        /* Global page styling */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: monospace, "Courier New", Courier;
+            padding: 20px;
+            background: #fafafa;
+            color: #333;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+        }
+
+        /* Individual test result line item */
+        .test-result {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Passing test — green */
+        .pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        /* Failing test — red, bold */
+        .fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        /* Test group section (describe block) */
+        .test-group {
+            margin: 16px 0;
+        }
+
+        .test-group h2 {
+            font-size: 1.1rem;
+            color: #555;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        /* Overall pass/fail summary */
+        .summary {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .summary.all-pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .summary.has-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Error detail styling for expected vs actual */
+        .error-detail {
+            display: block;
+            margin-top: 2px;
+            padding-left: 16px;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculator &amp; History Unit Tests</h1>
+    <div id="test-results"></div>
+    <div id="test-summary"></div>
+
+    <!-- ============================================================ -->
+    <!-- 1. INLINE ASSERTION LIBRARY — loaded FIRST before everything -->
+    <!-- ============================================================ -->
+    <script>
+        /**
+         * Lightweight browser-based assertion library for the Simple Calculator
+         * test runner. Provides assert, assertEqual, assertStrictEqual, and
+         * describe functions. All functions render visual pass/fail results
+         * directly into the #test-results container in the DOM.
+         *
+         * Uses var and function declarations (ES5) for maximum browser
+         * compatibility (Chrome 49+, Firefox 31+, Safari 9.1+, Edge 15+).
+         */
+
+        /* ---- Global counters ---- */
+        var passCount = 0;
+        var failCount = 0;
+
+        /* ---- DOM reference for results container ---- */
+        var resultsContainer = document.getElementById('test-results');
+
+        /* ---- Reference to the current describe-group container ---- */
+        var currentGroupContainer = null;
+
+        /**
+         * Returns the container element that test result entries should be
+         * appended to. If we are inside a describe() block, results go into
+         * the group container; otherwise they go directly into the main
+         * results container.
+         */
+        function getTargetContainer() {
+            return currentGroupContainer || resultsContainer;
+        }
+
+        /**
+         * Internal helper — renders a single test result entry.
+         * @param {boolean} passed  - Whether the assertion passed.
+         * @param {string}  message - Human-readable test description.
+         * @param {string}  [detail] - Optional detail line (expected vs actual).
+         */
+        function renderResult(passed, message, detail) {
+            var div = document.createElement('div');
+            div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+
+            var prefix = passed ? '\u2714 PASS: ' : '\u2718 FAIL: ';
+            div.textContent = prefix + message;
+
+            if (!passed && detail) {
+                var span = document.createElement('span');
+                span.className = 'error-detail';
+                span.textContent = detail;
+                div.appendChild(span);
+            }
+
+            getTargetContainer().appendChild(div);
+        }
+
+        /* ============================================================
+         * assert(condition, message)
+         *
+         * Basic boolean assertion.
+         * - If condition is truthy  → logs PASS, increments passCount.
+         * - If condition is falsy   → logs FAIL, increments failCount.
+         * ============================================================ */
+        function assert(condition, message) {
+            if (condition) {
+                passCount++;
+                renderResult(true, message);
+            } else {
+                failCount++;
+                renderResult(false, message, 'Condition evaluated to falsy');
+            }
+        }
+
+        /* ============================================================
+         * assertEqual(actual, expected, message)
+         *
+         * Loose-equality comparison (==).
+         * - PASS when actual == expected.
+         * - FAIL with "Expected: …, Got: …" detail when not equal.
+         * ============================================================ */
+        function assertEqual(actual, expected, message) {
+            /* jshint eqeqeq: false */
+            if (actual == expected) {
+                passCount++;
+                renderResult(true, message);
+            } else {
+                failCount++;
+                var detail = 'Expected: ' + String(expected) +
+                             ', Got: ' + String(actual);
+                renderResult(false, message, detail);
+            }
+        }
+
+        /* ============================================================
+         * assertStrictEqual(actual, expected, message)
+         *
+         * Strict-equality comparison (===). Checks both value AND type.
+         * - PASS when actual === expected.
+         * - FAIL with value, type information for both sides.
+         *
+         * CRITICAL for verifying:
+         *   divide(10, 0) returns the STRING "Cannot divide by zero"
+         *   validate() returns null (not undefined or "")
+         * ============================================================ */
+        function assertStrictEqual(actual, expected, message) {
+            if (actual === expected) {
+                passCount++;
+                renderResult(true, message);
+            } else {
+                failCount++;
+                var detail = 'Expected: ' + String(expected) +
+                             ' (type: ' + typeof expected + ')' +
+                             ', Got: ' + String(actual) +
+                             ' (type: ' + typeof actual + ')';
+                renderResult(false, message, detail);
+            }
+        }
+
+        /* ============================================================
+         * describe(groupName, testFn)
+         *
+         * Creates a visual group / section for related tests.
+         * - groupName: string heading such as "add() function".
+         * - testFn:    function containing assertion calls.
+         * Renders an h2 heading and collects child results underneath.
+         * ============================================================ */
+        function describe(groupName, testFn) {
+            var groupDiv = document.createElement('div');
+            groupDiv.className = 'test-group';
+
+            var heading = document.createElement('h2');
+            heading.textContent = groupName;
+            groupDiv.appendChild(heading);
+
+            resultsContainer.appendChild(groupDiv);
+
+            /* Temporarily redirect assertion output into this group */
+            var previousContainer = currentGroupContainer;
+            currentGroupContainer = groupDiv;
+
+            try {
+                testFn();
+            } catch (err) {
+                /* If the test function throws, record it as a failure */
+                failCount++;
+                renderResult(false, 'Uncaught error in "' + groupName + '"',
+                             String(err));
+            }
+
+            /* Restore previous container context */
+            currentGroupContainer = previousContainer;
+        }
+
+        /* ============================================================
+         * test(testName, testFn)
+         *
+         * Optional wrapper for individual test cases within a describe
+         * block. Simply runs the provided function; if it throws,
+         * records the error as a failure.
+         * ============================================================ */
+        function test(testName, testFn) {
+            try {
+                testFn();
+            } catch (err) {
+                failCount++;
+                renderResult(false, testName + ' (threw error)',
+                             String(err));
+            }
+        }
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- 2. SOURCE MODULES UNDER TEST (relative paths from tests/)    -->
+    <!--    Load order: calculator.js first, history.js second        -->
+    <!-- ============================================================ -->
+    <script src="../js/calculator.js"></script>
+    <script src="../js/history.js"></script>
+
+    <!-- ============================================================ -->
+    <!-- 3. TEST SUITES (depend on assertion library + source modules) -->
+    <!-- ============================================================ -->
+    <script src="calculator.test.js"></script>
+    <script src="history.test.js"></script>
+
+    <!-- ============================================================ -->
+    <!-- 4. SUMMARY SCRIPT — runs LAST after all tests have executed  -->
+    <!-- ============================================================ -->
+    <script>
+        /**
+         * Render the final pass/fail summary after every test script
+         * has finished executing. This block is intentionally placed at
+         * the very end of the body so it runs synchronously after all
+         * preceding <script> tags.
+         */
+        (function renderSummary() {
+            var summaryEl = document.getElementById('test-summary');
+            var totalTests = passCount + failCount;
+
+            summaryEl.textContent = totalTests + ' tests run: ' +
+                                    passCount + ' passed, ' +
+                                    failCount + ' failed';
+
+            summaryEl.className = 'summary ' +
+                                  (failCount === 0 ? 'all-pass' : 'has-fail');
+        })();
+    </script>
+</body>
+</html>

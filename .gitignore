@@ -1,0 +1,12 @@
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE artifacts
+.vscode/
+.idea/
+
+# Temporary and swap files
+*.swp
+*.swo
+*~
