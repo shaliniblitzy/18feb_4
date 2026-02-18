@@ -1,0 +1,323 @@
+/* ============================================================
+   Simple Calculator — Complete Application Stylesheet
+   ============================================================
+   Theming: CSS custom properties under :root (light) and
+            [data-theme="dark"] (dark mode override).
+   Layout:  Flexbox-centered card with vertically stacked sections.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Phase 1: CSS Custom Properties — Theming Foundation
+   ---------------------------------------------------------- */
+
+/* 1.1 Light Theme (Default) */
+:root {
+  --bg-color: #f5f5f5;
+  --text-color: #333333;
+  --btn-color: #4a90d9;
+  --btn-hover: #357abd;
+  --result-bg: #e8f4e8;
+  --input-border: #cccccc;
+  --error-color: #d32f2f;
+  --card-bg: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --history-bg: #fafafa;
+  --btn-text: #ffffff;
+  --clear-btn-color: #e74c3c;
+  --clear-btn-hover: #c0392b;
+  --toggle-btn-color: #6c757d;
+  --toggle-btn-hover: #5a6268;
+}
+
+/* 1.2 Dark Theme — activated via data-theme="dark" on <html> */
+[data-theme="dark"] {
+  --bg-color: #1a1a2e;
+  --text-color: #e0e0e0;
+  --btn-color: #5a9fd4;
+  --btn-hover: #4a8fc4;
+  --result-bg: #16213e;
+  --input-border: #444444;
+  --error-color: #ef5350;
+  --card-bg: #16213e;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --history-bg: #0f3460;
+  --btn-text: #ffffff;
+  --clear-btn-color: #e74c3c;
+  --clear-btn-hover: #c0392b;
+  --toggle-btn-color: #adb5bd;
+  --toggle-btn-hover: #868e96;
+}
+
+/* ----------------------------------------------------------
+   Phase 2: Global Reset and Base Styles
+   ---------------------------------------------------------- */
+
+/* 2.1 Box-sizing reset (MANDATORY) */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2.2 Body base styles — Flexbox centering, system font stack */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ----------------------------------------------------------
+   Phase 3: Calculator Container Layout
+   ---------------------------------------------------------- */
+
+/* 3.1 Main calculator card — centred, max-width constrained */
+.calculator-container {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  padding: 30px;
+  width: 100%;
+  max-width: 450px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ----------------------------------------------------------
+   Phase 4: Header Styling
+   ---------------------------------------------------------- */
+
+/* 4.1 Header layout — title left, toggle right */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+/* 4.2 Theme toggle button */
+#theme-toggle {
+  background-color: var(--toggle-btn-color);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: background-color 0.2s ease;
+}
+
+#theme-toggle:hover {
+  background-color: var(--toggle-btn-hover);
+}
+
+#theme-toggle:focus {
+  outline: 2px solid var(--toggle-btn-hover);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   Phase 5: Input Field Styling
+   ---------------------------------------------------------- */
+
+/* 5.1 Input group — label + input pair */
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--text-color);
+  background-color: var(--card-bg);
+  transition: border-color 0.2s ease, background-color 0.3s ease;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: var(--btn-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.2);
+}
+
+/* ----------------------------------------------------------
+   Phase 6: Operation Buttons
+   ---------------------------------------------------------- */
+
+/* 6.1 Button container — horizontal row */
+.operations {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+/* 6.2 Individual operation buttons */
+.operations button {
+  flex: 1;
+  padding: 12px 0;
+  background-color: var(--btn-color);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.operations button:hover {
+  background-color: var(--btn-hover);
+}
+
+.operations button:active {
+  transform: scale(0.96);
+}
+
+.operations button:focus {
+  outline: 2px solid var(--btn-hover);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   Phase 7: Result Display Area
+   ---------------------------------------------------------- */
+
+/* 7.1 Result container — distinct background, larger font */
+#result {
+  background-color: var(--result-bg);
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease;
+  word-break: break-all;
+}
+
+/* 7.2 Error styling — toggled by app.js via .error class */
+#result.error {
+  color: var(--error-color);
+}
+
+/* ----------------------------------------------------------
+   Phase 8: Clear Button
+   ---------------------------------------------------------- */
+
+#clear-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--clear-btn-color);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: background-color 0.2s ease;
+}
+
+#clear-btn:hover {
+  background-color: var(--clear-btn-hover);
+}
+
+#clear-btn:focus {
+  outline: 2px solid var(--clear-btn-hover);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------
+   Phase 9: History Panel
+   ---------------------------------------------------------- */
+
+/* 9.1 History section container */
+.history-section {
+  border-top: 2px solid var(--input-border);
+  padding-top: 16px;
+}
+
+.history-section h2 {
+  font-size: 1.1rem;
+  margin: 0 0 12px 0;
+  color: var(--text-color);
+}
+
+/* 9.2 Scrollable history list */
+#history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--history-bg);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+#history-list li {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--input-border);
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+#history-list li:last-child {
+  border-bottom: none;
+}
+
+/* ----------------------------------------------------------
+   Phase 10: Responsive Design
+   ---------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .calculator-container {
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  header h1 {
+    font-size: 1.25rem;
+  }
+
+  .operations button {
+    font-size: 1rem;
+    padding: 10px 0;
+  }
+
+  #result {
+    font-size: 1.1rem;
+    padding: 12px 16px;
+  }
+}
